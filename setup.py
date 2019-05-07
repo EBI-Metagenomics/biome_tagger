@@ -19,7 +19,7 @@ setup(name='biome_tagger',
       install_requires=install_requirements,
       entry_points={
           'console_scripts': [
-              'tag-biome2=src.main:main',
+              'tag-biome=src.main:main',
           ]
       },
       setup_requires=['pytest-runner'],

@@ -10,8 +10,8 @@ from django.db.models import Q
 from mgnify_backlog import mgnify_handler
 from ena_portal_api import ena_handler
 
-from classify.load_classifier import BiomeClassifier
-from classify import load_classifier
+from biome_classifier.load_classifier import BiomeClassifier
+from biome_classifier import load_classifier
 
 logging.basicConfig(level=logging.INFO, filename='biome_tagging.log')
 logging.getLogger().addHandler(logging.StreamHandler())
