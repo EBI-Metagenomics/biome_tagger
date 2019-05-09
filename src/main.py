@@ -161,7 +161,7 @@ class Gui(Tk):
         self.ena_view_btn.grid(row=3, column=0, padx=10, pady=3)
 
     def view_in_ena(self):
-        webbrowser.open_new("https://www.ebi.ac.uk/ena/data/view/" + self.study_id_var.get())
+        webbrowser.open_new("https://www.ebi.ac.uk/ena/data/view/" + self.study_id_var.get().replace('Study id: ', ''))
 
     def init_study_display(self):
         self.study_id_var = StringVar(self)
@@ -247,6 +247,7 @@ class Gui(Tk):
         for i, s in enumerate(sorted([s.secondary_accession for s in self.btc.studies])):
             if self.study_listbox.get(i) != s:
                 self.study_listbox.insert(i, s)
+        self.study_listbox.delete(len(self.btc.studies), END)
 
     def init_confirmation_line(self):
         self.tagging_confirmation_var = StringVar(value='')
@@ -260,10 +261,6 @@ class Gui(Tk):
     def reset_confirmation_line(self):
         self.tagging_confirmation_var.set('')
 
-    def disp_predicted_biomes(self, data):
-        pass
-        # text = data.
-        # preds = self.biome_classifier.pred_input(text)
 
 
 class BiomeTaggingTool:
