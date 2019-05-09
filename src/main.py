@@ -228,9 +228,8 @@ class Gui(Tk):
         study_id = self.study_id_var.get().replace('Study id: ', '')
         biome = self.biome_selection.get().replace('Selected biome: ', '')
         logging.info('Tagging {} with biome {}'.format(study_id, biome))
-
-        biome_id = re.findall('(\d+):.+', biome)[0]
-        self.btc.tag_study(study_id, biome_id)
+        lineage = re.sub('(\(\d\.\d+ match\))', '', biome)
+        self.btc.tag_study(study_id, lineage)
 
         self.remove_study_from_list(study_id)
         self.reset_study_display()
@@ -305,8 +304,8 @@ class BiomeTaggingTool:
             studies = studies.filter(Q(primary_accession=study_accession) | Q(secondary_accession=study_accession))
         return studies
 
-    def tag_study(self, study_id, biome_id):
-        biome = mgnify_handler.Biome.objects.using(self.db).get(biome_id=biome_id)
+    def tag_study(self, study_id, lineage):
+        biome = mgnify_handler.Biome.objects.using(self.db).get(lineage=lineage)
 
         runs = mgnify_handler.Run.objects.using(self.db).filter(study__secondary_accession=study_id)
         assemblies = mgnify_handler.Assembly.objects.using(self.db).filter(study__secondary_accession=study_id)
