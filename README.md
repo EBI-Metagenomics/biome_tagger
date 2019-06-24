@@ -32,5 +32,7 @@ backlog:
 ```
 
 ## Usage:
+Run the following to start the tagging UI.
 ```bash
+    tag-biome
 ```

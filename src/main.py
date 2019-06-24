@@ -1,7 +1,10 @@
 import argparse
 import re
 import xml.etree.ElementTree as ET
-from tkinter import Tk, Listbox, END, StringVar, Entry, Button, TclError, Label, Frame, IntVar, Checkbutton
+from tkinter import Tk, Listbox, END, StringVar, Entry, Button, TclError, Label, Frame, IntVar, Checkbutton, Scrollbar, \
+    RIGHT, Text, Canvas, Y, SUNKEN, HORIZONTAL, LEFT
+import tkinter.scrolledtext as tkscrolled
+
 import logging
 import webbrowser
 import requests
@@ -10,7 +13,6 @@ from django.db.models import Q
 from mgnify_backlog import mgnify_handler
 from ena_portal_api import ena_handler
 
-from biome_classifier.load_classifier import BiomeClassifier
 from biome_classifier import load_classifier
 
 logging.basicConfig(level=logging.INFO, filename='biome_tagging.log')
@@ -173,8 +175,15 @@ class Gui(Tk):
         self.study_id_disp.grid(row=0, column=0, padx=10, pady=3)
         self.study_title_disp = Label(self.details_frame, textvariable=self.study_title_var, wraplength=750)
         self.study_title_disp.grid(row=1, column=0, padx=10, pady=3)
-        self.study_desc_disp = Label(self.details_frame, textvariable=self.study_desc_var, wraplength=750)
-        self.study_desc_disp.grid(row=2, column=0, padx=10, pady=3)
+
+        self.study_desc_frame = Frame(self.details_frame)
+        self.study_desc_frame.grid(row=2, column=0)
+
+        self.study_desc_disp = tkscrolled.ScrolledText(self.study_desc_frame, height=20, width=140, wrap='word')
+        self.study_desc_disp.insert(1.0, self.study_desc_var.get())
+        self.study_desc_disp['font'] = ('consolas', '14')
+        self.study_desc_disp.pack(expand=True, fill='both')
+
         self.study_scientific_names = Label(self.details_frame, textvariable=self.study_sci_names_var, wraplength=750)
         self.study_scientific_names.grid(row=3, column=0, padx=10, pady=3)
 
@@ -195,6 +204,8 @@ class Gui(Tk):
             self.study_id_var.set('Study id: {}'.format(study_id))
             self.study_title_var.set('Title: {}'.format(d['title']))
             self.study_desc_var.set('Abstract: {}'.format(d['abstract']))
+            self.study_desc_disp.insert(1.0, self.study_desc_var.get())
+
             # self.study_sci_names_var.set('Environment variable names: {}'.format(", ".join(d['scientific_names'])))
             self.reset_confirmation_line()
             self.suggested_biomes = self.biome_classifier.pred_input((d['title'] or '') + ' ' + (d['abstract'] or ''))
@@ -260,7 +271,6 @@ class Gui(Tk):
 
     def reset_confirmation_line(self):
         self.tagging_confirmation_var.set('')
-
 
 
 class BiomeTaggingTool:
