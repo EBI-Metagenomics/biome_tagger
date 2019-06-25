@@ -1,4 +1,8 @@
 # Biome tagging utility for the MGnify backlog schema
+
+## Python version support
+3.6
+
 ## Installation
 ```bash
 pip install -U git+git://github.com/EBI-Metagenomics/emg-backlog-schema.git;
