@@ -2,7 +2,7 @@ import argparse
 import re
 import xml.etree.ElementTree as ET
 from tkinter import Tk, Listbox, END, StringVar, Entry, Button, TclError, Label, Frame, IntVar, Checkbutton, Scrollbar, \
-    RIGHT, Text, Canvas, Y, SUNKEN, HORIZONTAL, LEFT
+    RIGHT, Text, Canvas, Y, SUNKEN, HORIZONTAL, LEFT, DISABLED, NORMAL
 import tkinter.scrolledtext as tkscrolled
 
 import logging
@@ -132,22 +132,29 @@ class Gui(Tk):
         self.biome_listbox.delete(0, END)
         list_biomes = []
 
+        index_colors = {}
+
+        # Insert suggested biomes at top of list IF they match the filter text, and store indeces to colour them later
         for b in self.suggested_biomes:
             s = '{} ({} match)'.format(b[0], "{0:.2f}".format(b[1]))
             is_match = search_term.lower() in b[0].lower() if not self.biome_match_case.get() else search_term in b[0]
             if is_match:
+                i = len(list_biomes)
                 list_biomes.append(s)
+                b_color = fmt_font_intensity(b[1])
+                index_colors[i] = _from_rgb((255 - b_color, 0, b_color))
 
+        # Append non-suggested biomes which pass filter
         for b in self.biomes_list:
             is_match = search_term.lower() in b.lower() if not self.biome_match_case.get() else search_term in b
             if is_match and b not in self.suggested_biomes:
                 list_biomes.append(b)
 
+        # Insert into listbox and color items if needed
         for i, b in enumerate(list_biomes):
             self.biome_listbox.insert(END, b)
-            if i < len(self.suggested_biomes):
-                b_color = fmt_font_intensity(self.suggested_biomes[i][1])
-                self.biome_listbox.itemconfig(i, {'fg': _from_rgb((255 - b_color, 0, b_color))})
+            if i in index_colors:
+                self.biome_listbox.itemconfig(i, {'fg': index_colors[i]})
 
     def init_study_list(self):
         self.study_listbox = Listbox(self.list_frame, width=75)
@@ -180,7 +187,7 @@ class Gui(Tk):
         self.study_desc_frame.grid(row=2, column=0)
 
         self.study_desc_disp = tkscrolled.ScrolledText(self.study_desc_frame, height=20, width=140, wrap='word')
-        self.study_desc_disp.insert(1.0, self.study_desc_var.get())
+        self.study_desc_disp.insert(0.0, '\n' + self.study_desc_var.get())
         self.study_desc_disp['font'] = ('consolas', '14')
         self.study_desc_disp.pack(expand=True, fill='both')
 
@@ -199,18 +206,22 @@ class Gui(Tk):
 
     def select_study(self, *args, **kwargs):
         try:
+            print('selecting')
             study_id = self.study_listbox.get(self.study_listbox.curselection())
             d = self.fetch_study(study_id)
             self.study_id_var.set('Study id: {}'.format(study_id))
             self.study_title_var.set('Title: {}'.format(d['title']))
-            self.study_desc_var.set('Abstract: {}'.format(d['abstract']))
-            self.study_desc_disp.insert(1.0, self.study_desc_var.get())
+            text = 'Abstract: {}'.format(d['abstract'])
+            self.study_desc_disp.delete(1.0, END)
+            self.study_desc_disp.insert(1.0, '\n' + text)
+            self.study_desc_disp.see(0.0)
 
             # self.study_sci_names_var.set('Environment variable names: {}'.format(", ".join(d['scientific_names'])))
             self.reset_confirmation_line()
             self.suggested_biomes = self.biome_classifier.pred_input((d['title'] or '') + ' ' + (d['abstract'] or ''))
             self.filter_biome_list()
-        except TclError:
+        except TclError as e:
+            logging.error(e)
             pass
 
     def reset_study_display(self):
