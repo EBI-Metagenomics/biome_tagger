@@ -314,10 +314,8 @@ class BiomeTaggingTool:
 
     def get_taggable_studies(self, study_accession=None):
         studies = mgnify_handler.Study.objects.using(self.db).filter(
-            Q(run__biome_id__isnull=True,
-              run__annotationjobs__isnull=False) |
-            Q(assembly__biome_id__isnull=True,
-              assembly__assemblyannotationjob__isnull=False)).distinct()
+            Q(run__biome_id__isnull=True) |
+            Q(assembly__biome_id__isnull=True)).distinct()
         if study_accession:
             studies = studies.filter(Q(primary_accession=study_accession) | Q(secondary_accession=study_accession))
         return studies
