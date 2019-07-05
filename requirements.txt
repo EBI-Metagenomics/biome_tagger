@@ -1,3 +1,4 @@
 Django~=1.11
+ena_api_libs>=1.0.0
 emg_libs
 classify
