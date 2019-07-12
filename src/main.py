@@ -181,9 +181,7 @@ class Gui(Tk):
         self.study_listbox_lbl = Label(self.list_frame, text='List of studies that need tagging')
         self.study_listbox_lbl.grid(row=0, column=0, padx=10, pady=3)
         self.study_listbox.grid(row=1, column=0, padx=10, pady=3)
-        self.study_select_btn = Button(self.list_frame, text='Select study', command=self.select_study)
-        self.study_listbox.bind('<Double-Button>', self.select_study)
-        self.study_select_btn.grid(row=2, column=0, padx=10, pady=3)
+
 
         study_filter_row = Frame(self.list_frame)
         study_filter_row.grid(row=2, column=0, padx=10, pady=3)
@@ -196,7 +194,9 @@ class Gui(Tk):
         self.study_filter_box = Entry(study_filter_row, textvariable=self.study_filter_var, width=50)
         self.study_filter_box.grid(row=0, column=1, padx=10, pady=3)
 
-
+        self.study_select_btn = Button(study_filter_row, text='Select study', command=self.select_study)
+        self.study_listbox.bind('<Double-Button>', self.select_study)
+        self.study_select_btn.grid(row=0, column=3, padx=10, pady=3)
 
 
         self.ena_view_btn = Button(self.list_frame, text='View study in ENA', command=self.view_in_ena)
