@@ -47,6 +47,8 @@ class Gui(Tk):
     study_listbox = None
     study_listbox_lbl = None
     study_select_btn = None
+    study_filter_var = None
+    study_filter_box = None
 
     study_id_disp = None
     study_id_var = None
@@ -90,6 +92,7 @@ class Gui(Tk):
 
         self.biomes_list = get_biomes()
 
+
         self.init_biome_list()
         self.init_study_list()
 
@@ -126,8 +129,24 @@ class Gui(Tk):
 
         self.filter_biome_list()
 
-    def filter_biome_list(self):
 
+    def filter_study_list(self):
+        search_term = self.study_filter_var.get()
+        self.study_listbox.delete(0, END)
+        list_studies = []
+
+
+        # Append non-suggested biomes which pass filter
+        for s in self.btc.studies:
+            accessions = (s.primary_accession + ' ' + s.secondary_accession).lower()
+            if search_term.lower() in accessions:
+                list_studies.append(s.secondary_accession)
+
+        # Insert into listbox and color items if needed
+        for i, s in enumerate(list_studies):
+            self.study_listbox.insert(END, s)
+
+    def filter_biome_list(self):
         search_term = self.biome_filter_var.get()
         self.biome_listbox.delete(0, END)
         list_biomes = []
@@ -165,6 +184,20 @@ class Gui(Tk):
         self.study_select_btn = Button(self.list_frame, text='Select study', command=self.select_study)
         self.study_listbox.bind('<Double-Button>', self.select_study)
         self.study_select_btn.grid(row=2, column=0, padx=10, pady=3)
+
+        study_filter_row = Frame(self.list_frame)
+        study_filter_row.grid(row=2, column=0, padx=10, pady=3)
+        study_filter_lbl = Label(study_filter_row, text='Search Study accession: ')
+        study_filter_lbl.grid(row=0, column=0, padx=10, pady=3)
+
+        self.study_filter_var = StringVar()
+        self.study_filter_var.trace("w", lambda name, index, mode: self.filter_study_list())
+
+        self.study_filter_box = Entry(study_filter_row, textvariable=self.study_filter_var, width=50)
+        self.study_filter_box.grid(row=0, column=1, padx=10, pady=3)
+
+
+
 
         self.ena_view_btn = Button(self.list_frame, text='View study in ENA', command=self.view_in_ena)
         self.ena_view_btn.grid(row=3, column=0, padx=10, pady=3)
@@ -299,16 +332,11 @@ class BiomeTaggingTool:
         vals = self.ena.get_study_runs(secondary_study_accession, fields='scientific_name')
         return set([v['scientific_name'] for v in vals])
 
-    @staticmethod
-    def fetch_info(study):
-        resp = requests.get('https://www.ebi.ac.uk/ena/data/view/{}&display=xml'.format(study.secondary_accession)) \
-            .content \
-            .decode('UTF-8')
-        tree = ET.fromstring(resp)
-        descriptor = tree.find('STUDY').find('DESCRIPTOR')
+    def fetch_info(self, study):
+        s = self.ena.get_study(secondary_accession=study.secondary_accession)
         data = {
-            'title': descriptor.find('STUDY_TITLE').text,
-            'abstract': descriptor.find('STUDY_ABSTRACT').text
+            'title': s.get('study_title') or s.get('title'),
+            'abstract': s.get('study_description') or s.get('description')
         }
         return data
 
@@ -345,6 +373,7 @@ def _from_rgb(rgb):
 
 
 def main():
+
     gui = Gui(biome_classifier=load_classifier.get_model())
     gui.mainloop()
 

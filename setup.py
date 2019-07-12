@@ -4,7 +4,7 @@ import os
 _base = os.path.dirname(os.path.abspath(__file__))
 _requirements = os.path.join(_base, 'requirements.txt')
 
-version = '1.0.4'
+version = '1.0.5'
 
 install_requirements = []
 with open(_requirements) as f:

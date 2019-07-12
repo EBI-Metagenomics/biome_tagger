@@ -35,7 +35,8 @@ backlog:
       PORT: port
       DB: 'emg_backlog_2'
 ```
-
+## Tagging private studies
+To tag private studies, the ena API credentials need to be loaded using the env variables ENA_API_USER and ENA_API_PASSWORD.
 ## Usage:
 Run the following to start the tagging UI.
 ```bash
